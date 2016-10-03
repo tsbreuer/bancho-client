@@ -24,9 +24,8 @@ public class CommandHandler implements PacketHandler {
 	public void handle(Packet packet) {
 		if (packet instanceof PacketChat) {
 			PacketChat msg = (PacketChat) packet;
-			if (!msg.channel.startsWith("#")){
+			if (!msg.channel.startsWith("#"))
 				System.out.println(msg.sender + ": " + msg.message);
-				}
 			
 			if (msg.message.trim().startsWith(commandPrefix)) {
 				String command = msg.message.trim().substring(1);
@@ -39,13 +38,7 @@ public class CommandHandler implements PacketHandler {
 				for (int i = 1; i < rawArgs.length; i++)
 					args.add(rawArgs[i]);
 				handle(msg.channel, msg.sender, msg.userId, label, args);
-				return;
 			}
-			
-			//System.out.println("Null Call1");
-			//List<String> args = new ArrayList<>();
-			//handle(msg.channel, msg.sender, msg.userId, null, args);
-
 		}
 	}
 	

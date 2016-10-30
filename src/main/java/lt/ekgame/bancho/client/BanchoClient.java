@@ -67,6 +67,7 @@ public class BanchoClient extends Thread implements Bancho {
 	
 	private Queue<Packet> outgoingPackets = new LinkedList<>();
 	private List<PacketHandler> packetHandlers = new ArrayList<PacketHandler>();
+	private RateLimiterImpl messageRateLimiter = new RateLimiterImpl(1000);
 	
 	private boolean isConnected = false;
 	
@@ -199,7 +200,8 @@ public class BanchoClient extends Thread implements Bancho {
 						Packet packet = (Packet) packetClass.newInstance();
 						if (verbose && !(packet instanceof PacketIdle) && !(packet instanceof PacketUnknown0B) && !(packet instanceof PacketUnknown5F) && !(packet instanceof PacketUnknown0C)
 						 && !(packet instanceof PacketRoomUpdate) && !(packet instanceof PacketUnknown1B)&& !(packet instanceof PacketUnknown1C))
-							System.out.printf(" in >>  %s\n", packet.getClass().getName());
+							if (!packet.getClass().getName().equals("lt.ekgame.bancho.api.packets.server.PacketChat"))
+								System.out.printf(" in >>  %s\n", packet.getClass().getName());
 						ByteDataInputStream stream = new ByteDataInputStream(new ByteArrayInputStream(bytes), this);
 						packet.read(stream, len);
 						handlePacket(packet);
@@ -237,6 +239,16 @@ public class BanchoClient extends Thread implements Bancho {
 		while (true) {
 			//System.out.println("Update");
 			lastRequest = System.currentTimeMillis();
+			
+            Packet outgoingMessage;
+            if ((outgoingMessage = this.messageRateLimiter.getOutgoingPacket()) != null) {
+                this.sendPacket(outgoingMessage);
+            }
+            this.lastRequest = System.currentTimeMillis();
+            if (this.outgoingPackets.isEmpty()) {
+                this.outgoingPackets.add(new PacketIdle());
+            }
+            
 			if (outgoingPackets.isEmpty())
 				outgoingPackets.add(new PacketIdle());
 			
@@ -284,7 +296,7 @@ public class BanchoClient extends Thread implements Bancho {
 				request.releaseConnection();
 			}
 			
-			// Wait atleast 0.5 second between requests
+			// Wait atleast 1 second between requests
 			while (System.currentTimeMillis() - lastRequest < 500) {}
 		}
 	}
@@ -293,11 +305,19 @@ public class BanchoClient extends Thread implements Bancho {
 		outgoingPackets.add(packet);
 	}
 	
+
 	public void sendMessage(String channel, String message) {
 		if (channel.startsWith("#"))
-			sendPacket(new PacketSendMessageChannel(message, channel));
+			{
+			System.out.println(channel+" bot: "+message);
+			 this.messageRateLimiter.sendPacket(new PacketSendMessageChannel(message, channel));
+			}
 		else
-			sendPacket(new PacketSendMessageUser(message, channel));
+		{
+			System.out.println(channel+" bot: "+message);
+			  this.messageRateLimiter.sendPacket(new PacketSendMessageUser(message, channel));
+
+			}		
 	}
 	
 	public void beginSpectating(int userId) {

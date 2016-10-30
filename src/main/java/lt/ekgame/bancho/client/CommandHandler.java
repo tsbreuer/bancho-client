@@ -24,9 +24,13 @@ public class CommandHandler implements PacketHandler {
 	public void handle(Packet packet) {
 		if (packet instanceof PacketChat) {
 			PacketChat msg = (PacketChat) packet;
-			if (!msg.channel.startsWith("#"))
-				System.out.println(msg.sender + ": " + msg.message);
 			
+					
+				if (msg.channel.equals("#multiplayer"))
+			System.out.println(msg.channel + " - " + msg.sender + ": " + msg.message);
+				if (!msg.channel.startsWith("#"))	
+			System.out.println(msg.sender + ": " + msg.message);
+				
 			if (msg.message.trim().startsWith(commandPrefix)) {
 				String command = msg.message.trim().substring(1);
 				String[] rawArgs = command.split(" ");
@@ -42,7 +46,7 @@ public class CommandHandler implements PacketHandler {
 		}
 	}
 	
-	private void handle(String channel, String sender, int userId, String label, List<String> args) {
+	public void handle(String channel, String sender, int userId, String label, List<String> args) {
 		for (CommandExecutor executor : commandExecutors)
 			if (executor.accept(channel, sender))
 				executor.handle(channel, sender, userId, label, args);

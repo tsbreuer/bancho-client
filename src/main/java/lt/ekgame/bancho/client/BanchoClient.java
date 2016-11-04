@@ -201,6 +201,7 @@ public class BanchoClient extends Thread implements Bancho {
 						if (verbose && !(packet instanceof PacketIdle) && !(packet instanceof PacketUnknown0B) && !(packet instanceof PacketUnknown5F) && !(packet instanceof PacketUnknown0C)
 						 && !(packet instanceof PacketRoomUpdate) && !(packet instanceof PacketUnknown1B)&& !(packet instanceof PacketUnknown1C))
 							if (!packet.getClass().getName().equals("lt.ekgame.bancho.api.packets.server.PacketChat"))
+								if (!packet.getClass().getName().equals("lt.ekgame.bancho.api.packets.server.PacketRoomScoreUpdate"))
 								System.out.printf(" in >>  %s\n", packet.getClass().getName());
 						ByteDataInputStream stream = new ByteDataInputStream(new ByteArrayInputStream(bytes), this);
 						packet.read(stream, len);

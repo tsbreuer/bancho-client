@@ -30,6 +30,7 @@ public class CommandHandler implements PacketHandler {
 			System.out.println(msg.channel + " - " + msg.sender + ": " + msg.message);
 				if (!msg.channel.startsWith("#"))	
 			System.out.println(msg.sender + ": " + msg.message);
+
 				
 			if (msg.message.trim().startsWith(commandPrefix)) {
 				String command = msg.message.trim().substring(1);
